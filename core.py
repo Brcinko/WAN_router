@@ -6,6 +6,13 @@ import threading
 from scapy.all import *
 import time
 from help import *
+from menu import *
+
+NULL = 0
+
+
+eth0_IP = NULL
+eth1_IP = NULL
 
 port1 = "eth2"
 port2 = "eth3"
@@ -68,9 +75,8 @@ def rcv(ifaceFrom, ifaceTo, thread):
 #                			print "Nenajdeny som odoslal",ifaceFrom,ifaceTo
 
 def thr1():
-    #sniff(count = 10000, iface = port1, prn = lambda x : output(x, port2, port1))
     rcv(port1, port2, t1 )
-def thr2():#sniff(count = 10000, iface = port2, prn = lambda x : output(x, port1, port2))
+def thr2():
     rcv(port2, port1, t2)
 def thr3():
     down()
@@ -80,11 +86,11 @@ t1 = threading.Thread(target = thr1 )
 t2 = threading.Thread(target = thr2 )
 #t3 = threading.Thread(target = thr3)
 
-time.sleep(1)
-t1.start()
-time.sleep(1)
-t2.start()
-time.sleep(1)
+#time.sleep(1)
+#t1.start()
+#time.sleep(1)
+#t2.start()
+#time.sleep(1)
 #t3.start()
 
 while(True):
@@ -100,6 +106,9 @@ while(True):
 		table = {}
 	if (command == "help\n"):
 		help()
-
+	if (command == "int eth0\n"):
+		menu_eth0()
+	
+			
 
 
