@@ -21,7 +21,7 @@ eth1 = {}
 eth0_IP = "10.10.10.1" 
 eth1_IP = "20.20.20.1"
 
-
+route_table = []
 
 port1 = "eth2"
 port2 = "eth3"
@@ -85,6 +85,13 @@ def arp(pkt, ethIP,ifaceFrom):
 		pkt = send_ARP_reply(ethIP, pkt)
 		sendp (pkt, iface = ifaceFrom, verbose = 0)
 		return False
+
+def chceck_route(dstIP):
+	for route in route_table:
+		flag = IPAddress(str(dstIP)) in IPAddress(route['network'])
+		if flag is True:
+			return route
+	return False
 					
 
 
@@ -108,23 +115,35 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 			updateTable(ifaceFrom, paketik.getfieldval('src'), thread)
         		pomoc = paketik.getfieldval('dst')
         		portTarget = getPort(pomoc, thread)
-        		if (IP in paketik and not ARP in paketik and not ICMP in paketik):
+        		if (IP in paketik and paketik[IP].src == ethIP  and  not ARP in paketik and not ICMP in paketik):
 				print "Debug prisiel IP paket"
-        			if portTarget:
-                			get_from_arp("10.10.10.1")
-					send_ARP_req(ethIP,"10.10.10.1")
-					dstMAC = (socks, ethIP)
-					# treba vyriesit odosielanie na MAC
-					sendp(paketik, iface = portTarget[0], verbose = 0)
-                			flag = 0
+        			route = check_route(paketik[IP].dst)
+				if route is not False:
+					dstMAC = get_from_arp(route['next-hop'])
+					if dstMAC is not False:
+						pkt = paketik
+						pkt[Ether].dst = dstMAC
+						pkt[Ether].src = paketik[Ether].dst
+						# TODO decrement ttl
+						sendp(pkt,iface=route['int'],verbose=0)
+					else:
+						send_ARP_req(ethIP,route['next-hop'])
+						
+#				if portTarget:
+#                			get_from_arp("10.10.10.1")
+#					send_ARP_req(ethIP,"10.10.10.1")
+#					dstMAC = (socks, ethIP)
+#					# treba vyriesit odosielanie na MAC
+#					sendp(paketik, iface = portTarget[0], verbose = 0)
+#                			flag = 0
 #                			print "Poslal som najdeny, " ,ifaceFrom, ifaceTo
-            			else:
-                			# print "SOMTU!!!"
-                                        get_from_arp(str(paketik[IP].dst))
-                                        arp_pkt = send_ARP_req(ethIP,"10.10.10.25")
-                                        dstMAC = (socks, ethIP)
-					sendp (arp_pkt, iface = ifaceTo, verbose = 0)
-					sendp(paketik, iface = ifaceTo, verbose = 0)
+#            			else:
+#                			# print "SOMTU!!!"
+#                                       get_from_arp(str(paketik[IP].dst))
+#                                       arp_pkt = send_ARP_req(ethIP,"10.10.10.25")
+#                                       dstMAC = (socks, ethIP)
+#					sendp (arp_pkt, iface = ifaceTo, verbose = 0)
+#					sendp(paketik, iface = ifaceTo, verbose = 0)
 #                			print "Nenajdeny som odoslal",ifaceFrom,ifaceTo
 
 def thr1():
@@ -146,8 +165,14 @@ t2.start()
 #time.sleep(1)
 #t3.start()
 
+route = {}
+route.update({'network':'10.10.10.0/24','next-hop':'eth0','protocol':'C','metric':'1', 'int':'eth0'})
+
+route_table.append(route)
+
+
 while(True):
-	command = raw_input('R1(conf)#')
+	command = raw_input('R1(config)#')
     	if(command == "exit"):
         	t1._Thread__stop()
         	t2._Thread__stop()
@@ -156,6 +181,7 @@ while(True):
 	if(command == "table"):
 		print table
 	if(command =="show arp table"):
+		print " IP              MAC"		
 		print arp_table
 	if(command == "reset"):
 		table = {}
@@ -165,7 +191,15 @@ while(True):
 		eth0 = menu_eth0()
 	if (command == "int eth1"):
 		eth1 = menu_eth1()
-	
-			
+	if (command == "show ip route"):
+		for route in route_table:
+			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int']  
+	if (command == "ip route"):
+		net = raw_input("Network(IP/prefix):")
+		next_hop = raw_input("Next-hop(IP):")
+		interface = raw_input("Interface(eth):")
+		route = {}
+		route.update({'network':net,'next-hop': next_hop,'protocol':'S','metric':'1', 'int':interface})
+		route_table.append(route)	
 
 
