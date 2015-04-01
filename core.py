@@ -85,11 +85,22 @@ def arp(pkt, ethIP,ifaceFrom):
 		pkt = send_ARP_reply(ethIP, pkt)
 		sendp (pkt, iface = ifaceFrom, verbose = 0)
 		return False
+	if ARP in pkt and pkt[ARP].pdst != ethIP:
+		print "mam cudzie arp"
+		update_ARP_table(pkt[ARP].psrc,pkt[ARP].hwsrc)
+		route = check_route(pkt[ARP].pdst)
+		arp = send_ARP_req("20.20.20.1", pkt[ARP].pdst)
+		#  print pkt.show()
+		if route is not False:
+			lock.acquire()
+			sendp(pkt,iface = str(route['int']),verbose = 0)
+			lock.release()
 
-def chceck_route(dstIP):
+def check_route(dstIP):
 	for route in route_table:
-		flag = IPAddress(str(dstIP)) in IPAddress(route['network'])
+		flag = IPAddress(str(dstIP)) in IPNetwork(route['network'])
 		if flag is True:
+			print "Debug, mam zhodu na: ",str(route)
 			return route
 	return False
 					
@@ -115,7 +126,7 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 			updateTable(ifaceFrom, paketik.getfieldval('src'), thread)
         		pomoc = paketik.getfieldval('dst')
         		portTarget = getPort(pomoc, thread)
-        		if (IP in paketik and paketik[IP].src == ethIP  and  not ARP in paketik and not ICMP in paketik):
+        		if (IP in paketik and paketik[IP].dst != ethIP ):
 				print "Debug prisiel IP paket"
         			route = check_route(paketik[IP].dst)
 				if route is not False:
@@ -166,9 +177,14 @@ t2.start()
 #t3.start()
 
 route = {}
-route.update({'network':'10.10.10.0/24','next-hop':'eth0','protocol':'C','metric':'1', 'int':'eth0'})
+route.update({'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth0'})
 
 route_table.append(route)
+route = {}
+route.update({'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth1'})
+
+route_table.append(route)
+
 
 
 while(True):
