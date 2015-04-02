@@ -63,6 +63,7 @@ def get_from_arp(dstIP):
 		lock.release()
 		return arp_table[dstIP]
 	else:
+		lock.release()
 		return False
 	lock.release()
 
@@ -118,7 +119,8 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 		if (info[2] != socket.PACKET_OUTGOING):
 		#	packet, info = socks.recvfrom(MTU)
         		paketik = Ether(packet)
-			# print paketik.show()
+			print "Catch on int: ", ifaceFrom
+			print paketik.summary()
 			if ARP in paketik:
 				# print "Debug idem do funkcie ARP"
         			arp(paketik,ethIP,ifaceFrom)
@@ -143,8 +145,9 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 						# TODO decrement ttl
 						sendp(pkt,iface=route['int'],verbose=0)
 					else:
-						print "nemam ARP ziadam ARP na", route['next-hop']	
-						send_ARP_req(ethIP,route['next-hop'])
+						arp = send_ARP_req(route['eth_IP'],route['next-hop'])
+						sendp(arp, iface = route['int'], verbose = 0)
+						print "nemam ARP ziadam ARP na", route['next-hop'] , arp.show()
 
 			print "Koncim"			
 #				if portTarget:
@@ -184,11 +187,11 @@ t2.start()
 #t3.start()
 
 route = {}
-route.update({'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth0'})
+route.update({'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth0', 'eth_IP':'10.10.10.1'})
 
 route_table.append(route)
 route = {}
-route.update({'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth1'})
+route.update({'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth1', 'eth_IP':'20.20.20.1'})
 
 route_table.append(route)
 
