@@ -133,7 +133,7 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
         		#pomoc = paketik.getfieldval('dst')
         		#portTarget = getPort(pomoc, thread)
         		if (IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
-				print "Debug prisiel IP paket"
+				print "Debug prisiel IP paket na smerovanie"
         			route = check_route(paketik[IP].dst)
 				if route is not False:
 					dstMAC = get_from_arp(route['next-hop'])
