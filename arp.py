@@ -15,5 +15,5 @@ def recieve_ARP_rep(port):
 
 
 def send_ARP_reply(ethIP, arp_req):
-	pkt = Ether(dst=arp_req[ARP].hwsrc)/ARP(psrc=ethIP, hwdst=arp_req[ARP].hwsrc,pdst=arp_req[ARP].psrc,op="is-at")
+	pkt = Ether(dst=arp_req[ARP].hwsrc)/ARP(psrc=arp_req[ARP].pdst, hwdst=arp_req[ARP].hwsrc,pdst=arp_req[ARP].psrc,op="is-at")
 	return pkt

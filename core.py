@@ -82,25 +82,27 @@ def arp(pkt, ethIP,ifaceFrom):
 	if ARP in pkt and pkt[ARP].pdst == ethIP and pkt[ARP].op == 1: # who-has
 		print "paket je request na mna"
 		update_ARP_table(pkt[ARP].psrc, pkt[ARP].hwsrc)
-		pkt = send_ARP_reply(ethIP, pkt)
-		sendp (pkt, iface = ifaceFrom, verbose = 0)
+		arp = send_ARP_reply(ethIP, pkt)
+		sendp (arp, iface = ifaceFrom, verbose = 0)
+		print arp.show()
 		return False
 	if ARP in pkt and pkt[ARP].pdst != ethIP:
 		print "mam cudzie arp"
 		update_ARP_table(pkt[ARP].psrc,pkt[ARP].hwsrc)
 		route = check_route(pkt[ARP].pdst)
-		arp = send_ARP_req("20.20.20.1", pkt[ARP].pdst)
+		arp = send_ARP_reply(ethIP, pkt)
 		#  print pkt.show()
 		if route is not False:
-			lock.acquire()
-			sendp(pkt,iface = str(route['int']),verbose = 0)
-			lock.release()
+			print "idem odoslat rep na cudzie arp na ", ifaceFrom,arp.show() 
+			sendp(arp, iface = ifaceFrom ,verbose = 0)
+			return False
+			
 
 def check_route(dstIP):
 	for route in route_table:
 		flag = IPAddress(str(dstIP)) in IPNetwork(route['network'])
 		if flag is True:
-			print "Debug, mam zhodu na: ",str(route)
+			print "Debug, mam zhodu na: ",str(route['network']),str(route['int'])
 			return route
 	return False
 					
@@ -116,30 +118,35 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 		if (info[2] != socket.PACKET_OUTGOING):
 		#	packet, info = socks.recvfrom(MTU)
         		paketik = Ether(packet)
+			# print paketik.show()
 			if ARP in paketik:
 				# print "Debug idem do funkcie ARP"
         			arp(paketik,ethIP,ifaceFrom)
-			if ICMP in paketik:
+				print "Odoslal som arp"
+			if ICMP in paketik and paketik[IP].dst == eth0_IP or (ICMP in paketik and paketik[IP].dst == eth1_IP):
 				print "Debug prisiel ICMP"
 				pkt = send_ICMP_reply(paketik,ethIP)
 				sendp(pkt, iface=ifaceFrom, verbose = 0)
-			updateTable(ifaceFrom, paketik.getfieldval('src'), thread)
-        		pomoc = paketik.getfieldval('dst')
-        		portTarget = getPort(pomoc, thread)
-        		if (IP in paketik and paketik[IP].dst != ethIP ):
+			#updateTable(ifaceFrom, paketik.getfieldval('src'), thread)
+        		#pomoc = paketik.getfieldval('dst')
+        		#portTarget = getPort(pomoc, thread)
+        		if (IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
 				print "Debug prisiel IP paket"
         			route = check_route(paketik[IP].dst)
 				if route is not False:
 					dstMAC = get_from_arp(route['next-hop'])
 					if dstMAC is not False:
+						print "idem posielat na: ",str(route['int'])
 						pkt = paketik
 						pkt[Ether].dst = dstMAC
 						pkt[Ether].src = paketik[Ether].dst
 						# TODO decrement ttl
 						sendp(pkt,iface=route['int'],verbose=0)
 					else:
+						print "nemam ARP ziadam ARP na", route['next-hop']	
 						send_ARP_req(ethIP,route['next-hop'])
-						
+
+			print "Koncim"			
 #				if portTarget:
 #                			get_from_arp("10.10.10.1")
 #					send_ARP_req(ethIP,"10.10.10.1")
