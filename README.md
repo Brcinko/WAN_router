@@ -16,3 +16,21 @@ Prerequisites
  
 
 Ifaces have to be in promisc mode (`ifconfig eth0 promisc`). There maz be problem with interface managing. Try edit `/etc/NetworkManager/NetworkManager.conf` and change variable managed to `managed=true`, then you can edit interface in System Settings.
+
+
+TODO list
+---------
+
+   -statistics (in/out)
+   
+   -sending packets to another interface (try sniff() instead of scket recieveing)
+   
+   -RIP logic
+   
+   -static NAT, dynamic NAT
+   
+   -menu(infinity loops), iface as object, starting a stoping threads in menu
+   
+   -PAT(otional)
+   
+   -Port Forwarding(opt)
