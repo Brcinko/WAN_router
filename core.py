@@ -4,6 +4,7 @@ from sys import stdin
 import socket
 import threading
 from scapy.all import *
+from scapy.error import Scapy_Exception
 from netaddr import *
 import time
 from help import *
@@ -143,11 +144,17 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 						pkt[Ether].dst = dstMAC
 						pkt[Ether].src = paketik[Ether].dst
 						# TODO decrement ttl
-						sendp(pkt,iface=route['int'],verbose=0)
+						try:
+							sendp(pkt,iface=route['int'], verbose = 0)
+						except Scapy_Exception as msg:
+        						print msg, "Chyba pri odosielani na druhy iface"
 						print pkt.show()
 					else:
 						arp = send_ARP_req(route['eth_IP'],route['next-hop'])
-						sendp(arp, iface = route['int'])
+                                                try:
+                                                        sendp(arp,iface=route['int'], verbose = 0)
+                                                except Scapy_Exception as msg:
+                                                        print msg, "Chyba pri odosielani na druhy iface"
 						print "nemam ARP ziadam ARP na", route['next-hop'] , arp.show()
 
 			print "Koncim"			
@@ -180,9 +187,7 @@ t1 = threading.Thread(target = thr1 )
 t2 = threading.Thread(target = thr2 )
 #t3 = threading.Thread(target = thr3)
 
-time.sleep(1)
 t1.start()
-time.sleep(1)
 t2.start()
 #time.sleep(1)
 #t3.start()
