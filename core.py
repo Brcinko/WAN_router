@@ -74,7 +74,7 @@ def getPort(dstMac, thread):
             	return table[dstMac]
 	lock.release()
 
-def arp(pkt, ethIP,ifaceFrom):
+def get_arp(pkt, ethIP,ifaceFrom):
 	print "mam arp paket"
 	if ARP in pkt and pkt[ARP].pdst == ethIP and pkt[ARP].op == 2 : # is-at                
 		print "paket je response"
@@ -123,7 +123,7 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 			print paketik.summary()
 			if ARP in paketik:
 				# print "Debug idem do funkcie ARP"
-        			arp(paketik,ethIP,ifaceFrom)
+        			get_arp(paketik,ethIP,ifaceFrom)
 				print "Odoslal som arp"
 			if ICMP in paketik and paketik[IP].dst == eth0_IP or (ICMP in paketik and paketik[IP].dst == eth1_IP):
 				print "Debug prisiel ICMP"
@@ -144,9 +144,10 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 						pkt[Ether].src = paketik[Ether].dst
 						# TODO decrement ttl
 						sendp(pkt,iface=route['int'],verbose=0)
+						print pkt.show()
 					else:
 						arp = send_ARP_req(route['eth_IP'],route['next-hop'])
-						sendp(arp, iface = route['int'], verbose = 0)
+						sendp(arp, iface = route['int'])
 						print "nemam ARP ziadam ARP na", route['next-hop'] , arp.show()
 
 			print "Koncim"			
