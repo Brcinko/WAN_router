@@ -5,7 +5,7 @@ def check_ARP_table(IP, ARP_table):
 	pass
 
 def send_ARP_req(srcIP,dstIP):
-	pkt = Ether(dst="ff:ff:ff:ff:ff:ff")/ARP( pdst=dstIP, psrc= srcIP, op=1, hwtype=0x1, ptype=0x800, hwlen=6, plen=4, hwdst='ff:ff:ff:ff:ff:ff')
+	pkt = Ether(dst="ff:ff:ff:ff:ff:ff")/ARP( pdst=dstIP, psrc= srcIP, op=1, hwtype=0x1, ptype=0x800, hwlen=6, plen=4, hwdst='00:00:00:00:00:00')
 	# print pkt.show()
 	return pkt
 

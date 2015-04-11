@@ -62,7 +62,7 @@ def get_from_arp(dstIP):
 	lock.acquire()
 	if arp_table.has_key(dstIP):
 		lock.release()
-		return arp_table[dstIP]
+		return str(arp_table[dstIP][0])
 	else:
 		lock.release()
 		return False
@@ -141,18 +141,19 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 					if dstMAC is not False:
 						print "idem posielat na: ",str(route['int'])
 						pkt = paketik
+						hlp_dst = paketik.getfieldval('dst')
 						pkt[Ether].dst = dstMAC
-						pkt[Ether].src = paketik[Ether].dst
+						pkt[Ether].src = hlp_dst
 						# TODO decrement ttl
 						try:
-							sendp(pkt,iface=route['int'], verbose = 0)
+							print pkt.show()
+							sendp(pkt,iface=ifaceTo, verbose = 0)
 						except Scapy_Exception as msg:
         						print msg, "Chyba pri odosielani na druhy iface"
-						print pkt.show()
 					else:
 						arp = send_ARP_req(route['eth_IP'],route['next-hop'])
                                                 try:
-                                                        sendp(arp,iface=route['int'], verbose = 0)
+                                                        sendp(arp,iface=ifaceTo, verbose = 0)
                                                 except Scapy_Exception as msg:
                                                         print msg, "Chyba pri odosielani na druhy iface"
 						print "nemam ARP ziadam ARP na", route['next-hop'] , arp.show()
