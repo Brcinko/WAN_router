@@ -2,6 +2,8 @@ from sys import stdin
 
 eth0 = {}
 eth1 = {}
+rip_networks = []
+
 
 def menu_eth0():
 	print "CONFIG-IF eth0"
@@ -11,7 +13,7 @@ def menu_eth0():
                 if (comm == "?"):
                        	print "ip add<cr>  then bring up with \"no sh\" "
                 if (comm == "no sh"  and  eth0_IP is not NULL):
-                        eth0['shtudwon'] = False
+                        eth0['shutdwon'] = False
                 if (comm == "sh"):
                         eth0['shutdown'] = True
                 if (comm == "ip add"):
@@ -43,4 +45,19 @@ def menu_eth1():
                 if (comm == "ex" or "exit"):
                         break
 	return eth1
+
+
+def menu_rip():
+	while(True):
+		comm = raw_input('R1(config-router)#')
+		if (comm == "?"):
+			print "try network<cr> and dont forget no-autosummary"
+
+		if (comm == "network"):
+			net = raw_input('IP_Address/Prefix:')
+			rip_networks.append(net)
+		if (comm == "no network"):
+                        net = raw_input('IP_Address/Prefix:')
+                        rip_networks.remove(net)
+				
 

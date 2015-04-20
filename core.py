@@ -28,6 +28,7 @@ port1 = "eth2"
 port2 = "eth3"
 table = {}
 arp_table = {}
+rip_en = False
 port = ""
 th = 0
 flag = 0
@@ -234,5 +235,15 @@ while(True):
 		route = {}
 		route.update({'network':net,'next-hop': next_hop,'protocol':'S','metric':'1', 'int':interface})
 		route_table.append(route)	
+	if (command == "router rip"):
+		menu_rip()
+		rip_en = True
+	if (command == "no router rip"):
+		rip_en = False
+		# TODO stop timer thread
+	if (command == "show rip"):
+		print "RIPv2 enable: ",rip_en
+		print "RIP local networks: ", rip_networks
+
 
 
