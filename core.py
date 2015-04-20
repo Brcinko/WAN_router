@@ -11,6 +11,7 @@ from help import *
 from menu import *
 from arp import *
 from icmp import *
+from stats import *
 
 
 NULL = 0
@@ -24,6 +25,7 @@ eth1_IP = "20.20.20.1"
 
 route_table = []
 
+
 port1 = "eth2"
 port2 = "eth3"
 table = {}
@@ -33,8 +35,8 @@ port = ""
 th = 0
 flag = 0
 
+stats = Stat()
 
-# port = zdrojovy port, srcMAC = zdrojova Mac packetu, tread = vlakno ktore checkuje
 
 def update_ARP_table(IP,MAC):
 	lock.acquire()
@@ -112,6 +114,7 @@ def check_route(dstIP):
 
 
 def rcv(ifaceFrom, ifaceTo, thread, ethIP):
+	global stats
     	socks = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_ALL))
     	socks.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 2**30)
     	socks.bind((ifaceFrom, ETH_P_ALL))
@@ -119,10 +122,12 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 	while (True):
 		packet, info = socks.recvfrom(MTU)        
 		if (info[2] != socket.PACKET_OUTGOING):
+			# update stats
+			stats = update_stats("in",ifaceFrom, stats)
 		#	packet, info = socks.recvfrom(MTU)
         		paketik = Ether(packet)
-			print "Catch on int: ", ifaceFrom
-			print paketik.summary()
+			# print "Catch on int: ", ifaceFrom
+			# print paketik.summary()
 			if ARP in paketik:
 				# print "Debug idem do funkcie ARP"
         			get_arp(paketik,ethIP,ifaceFrom)
@@ -159,7 +164,7 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
                                                         print msg, "Chyba pri odosielani na druhy iface"
 						print "nemam ARP ziadam ARP na", route['next-hop'] , arp.show()
 
-			print "Koncim"			
+			# print "Koncim"			
 #				if portTarget:
 #                			get_from_arp("10.10.10.1")
 #					send_ARP_req(ethIP,"10.10.10.1")
@@ -244,6 +249,17 @@ while(True):
 	if (command == "show rip"):
 		print "RIPv2 enable: ",rip_en
 		print "RIP local networks: ", rip_networks
+	if (command == "show st" or command == "show statistics"):
+		print "In/Out statistics on ports"
+		print "Eth0 in:", stats.eth0_in
+		print "Eth0 out: ", stats.eth0_out
+                print "Eth1 in:", stats.eth1_in
+                print "Eth1 out: ", stats.eth1_out
+
+
+
+
+
 
 
 

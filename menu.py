@@ -21,9 +21,9 @@ def menu_eth0():
                         eth0['ip'] = stdin.readline()
                         print "Set mask: "
                         eth0['mask'] = stdin.readline()
-                if (comm == "ex" or "exit"):
+                if (comm == "ex" or comm == "exit"):
                         break
-	return eth0
+#	return eth0
 
 
 def menu_eth1():
@@ -42,9 +42,9 @@ def menu_eth1():
                         eth1['ip'] = stdin.readline()
                         print "Set mask: "
                         eth1['mask'] = stdin.readline()
-                if (comm == "ex" or "exit"):
+                if (comm == "ex" or com == "exit"):
                         break
-	return eth1
+# 	return eth1
 
 
 def menu_rip():
@@ -59,5 +59,9 @@ def menu_rip():
 		if (comm == "no network"):
                         net = raw_input('IP_Address/Prefix:')
                         rip_networks.remove(net)
-				
+		if (comm == "ex" or comm =="exit"):
+			# pass
+			return
+		if (comm == "no-autosummary"):
+			print "Chvalabohu"	
 
