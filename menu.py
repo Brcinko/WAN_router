@@ -61,7 +61,7 @@ def menu_rip():
                         rip_networks.remove(net)
 		if (comm == "ex" or comm =="exit"):
 			# pass
-			return
+			return rip_table[]
 		if (comm == "no-autosummary"):
 			print "Chvalabohu"	
 
