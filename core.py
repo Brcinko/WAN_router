@@ -53,6 +53,16 @@ def set_rip_iface():
 	# print rip_ifaces
 
 
+def update_route_table(routes, proto):
+	for r in routes:
+		ip = IPNetwork(str(r['network']) + '/' + str(r['netmask']))
+		n = ip.prefixlen
+		net = str(r['network']) + '/' + str(n)
+		for i in rip_ifaces:
+			if r['int'] == i['int']:
+				ethIP = i['IP']
+		route = {'network' : net , 'next-hop' : r['next-hop'], 'metric' : r['metric'], 'protocol' : proto, 'int' : r['int'], 'eth_IP' : ethIP}
+		route_table.append(route)
 def update_ARP_table(IP,MAC):
 	lock.acquire()
 	arp_table.update({IP: [MAC]})
@@ -160,7 +170,8 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 					# print "RIP ", i['int'], ifaceFrom
 					if ifaceFrom == i['int']:
 						rip_routes  = get_from_rip(paketik, ifaceFrom)
-        		if (IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
+        					update_route_table(rip_routes, "R")
+			if (IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
 				print "Debug prisiel IP paket na smerovanie"
         			route = check_route(paketik[IP].dst)
 				if route is not False:
@@ -258,7 +269,7 @@ while(True):
 		eth1 = menu_eth1()
 	if (command == "show ip route"):
 		for route in route_table:
-			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int']  
+			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int']  + route['metric']
 	if (command == "ip route"):
 		net = raw_input("Network(IP/prefix):")
 		next_hop = raw_input("Next-hop(IP):")
