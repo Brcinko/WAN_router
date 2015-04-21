@@ -14,7 +14,7 @@ def send_time_request(rip_base,route_table,iface1,iface2, p1_IP, p2_IP):
 	# paketik = 
 	routes = get_rip_routes(rip_base, route_table)
 	# routes = update_metric(routes)
-	print routes
+	# print routes
 	entry = IPNetwork(routes[0]['network'])
 
 	eth = Ether()
@@ -22,11 +22,14 @@ def send_time_request(rip_base,route_table,iface1,iface2, p1_IP, p2_IP):
 	ip.src= p1_IP
 	ip.dst='224.0.0.9'
 	ip.ttl = 1
-	
-	rh = RIP(cmd='resp', version=2)
-	r = RIPEntry(addr=str(entry.network), mask=str(entry.netmask), metric = int(routes[0]['metric']) + 1)
 	u = UDP(sport=520, dport=520)
-	pkt = eth/ip/u/rh/r
+	rh = RIP(cmd='resp', version=2)
+	pkt = eth/ip/u/rh	
+	for route in routes:
+		entry = IPNetwork(route['network'])
+		mtr = (int(route['metric']) + 1) if route['metric'] < 16 else 16
+		r = RIPEntry(addr = str(entry.network), mask = str(entry.netmask), metric = mtr)	
+		pkt /=r
 	sendp(pkt,iface = iface1, verbose = 1)
 	# print pkt.show(pkt)
 
@@ -38,10 +41,4 @@ def get_rip_routes(rip_base,route_table):
 				routes.append({'network': net,'metric' : str(r['metric'])})
 	return routes
 	# print routes
-
-def update_metric(routes):
-	
-	pass
-	return routes
-
 
