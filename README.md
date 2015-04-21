@@ -21,9 +21,9 @@ Ifaces have to be in promisc mode (`ifconfig eth0 promisc`). There maz be proble
 TODO list
 ---------
 
-   -statistics (in/out)
+   -~~statistics (in/out)~~
    
-   -sending packets to another interface (try sniff() instead of scket recieveing)
+   -~~sending packets to another interface (try sniff() instead of scket recieveing)~~
    
    -RIP logic
    
