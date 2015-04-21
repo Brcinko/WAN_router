@@ -51,8 +51,7 @@ def menu_rip():
 	while(True):
 		comm = raw_input('R1(config-router)#')
 		if (comm == "?"):
-			print "try network<cr> and dont forget no-autosummary"
-
+			print "try network<cr> and dont forget no auto-summary!!"
 		if (comm == "network"):
 			net = raw_input('IP_Address/Prefix:')
 			rip_networks.append(net)
@@ -61,7 +60,7 @@ def menu_rip():
                         rip_networks.remove(net)
 		if (comm == "ex" or comm =="exit"):
 			# pass
-			return rip_table[]
-		if (comm == "no-autosummary"):
+			return
+		if (comm == "no auto-summary"):
 			print "Chvalabohu"	
 

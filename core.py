@@ -12,7 +12,7 @@ from menu import *
 from arp import *
 from icmp import *
 from stats import *
-
+from rip import *
 
 NULL = 0
 
@@ -37,6 +37,11 @@ th = 0
 flag = 0
 
 stats = Stat()
+
+def rip_up_send():
+	while(True):
+		send_time_request(route_table,port1,port2)
+		time.sleep(30)
 
 
 def update_ARP_table(IP,MAC):
@@ -187,13 +192,17 @@ def thr1():
 	rcv(port1, port2, t1, eth0_IP )
 def thr2():
     rcv(port2, port1, t2, eth1_IP )
-def thr3():
-    down()
+#def thr3():
+#    down()
+
 lock = threading.Lock()
+def thr4():
+	rip_up_send()
 
 t1 = threading.Thread(target = thr1 )
 t2 = threading.Thread(target = thr2 )
 #t3 = threading.Thread(target = thr3)
+t_rip = threading.Thread(target = thr4)
 
 t1.start()
 t2.start()
