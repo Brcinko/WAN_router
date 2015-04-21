@@ -40,8 +40,17 @@ stats = Stat()
 
 def rip_up_send():
 	while(True):
-		send_time_request(rip_networks,route_table,port1,port2,eth0_IP,eth1_IP)
+		send_time_request(rip_networks,route_table,rip_ifaces)
 		time.sleep(30)
+
+
+def set_rip_iface():
+	global rip_ifaces
+	for r in route_table:
+		for net in rip_networks:
+			if r['network'] == net:
+				rip_ifaces.append({'int' : str(r['int']),'IP' : str(r['eth_IP'])})
+	# print rip_ifaces
 
 
 def update_ARP_table(IP,MAC):
@@ -210,11 +219,11 @@ t2.start()
 #t3.start()
 
 route = {}
-route.update({'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth0', 'eth_IP':'10.10.10.1'})
+route.update({'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth2', 'eth_IP':'10.10.10.1'})
 
 route_table.append(route)
 route = {}
-route.update({'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth1', 'eth_IP':'20.20.20.1'})
+route.update({'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth3', 'eth_IP':'20.20.20.1'})
 
 route_table.append(route)
 
@@ -253,16 +262,22 @@ while(True):
 		route_table.append(route)	
 	if (command == "router rip"):
 		rip_table = menu_rip()
+		set_rip_iface()
+		if rip_en is False: 
+			t_rip.start()
 		rip_en = True
-		t_rip.start()
 	if (command == "no router rip"):
 		rip_en = False
 		rip_networks = []
-		t_rip._Thread__stop()
+		# t_rip._Thread__stop()
 		# TODO stop timer thread
 	if (command == "show rip"):
+		print "----RIP information base----"
+		print "!"
 		print "RIPv2 enable: ",rip_en
+		print "RIP active interfaces: ",rip_ifaces
 		print "RIP local networks: ", rip_networks
+		print "!"
 	if (command == "show st" or command == "show statistics"):
 		print "In/Out statistics on ports"
 		print "Eth0 in:", stats.eth0_in
