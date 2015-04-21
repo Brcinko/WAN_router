@@ -40,7 +40,7 @@ stats = Stat()
 
 def rip_up_send():
 	while(True):
-		send_time_request(route_table,port1,port2)
+		send_time_request(rip_networks,route_table,port1,port2,eth0_IP,eth1_IP)
 		time.sleep(30)
 
 
@@ -225,6 +225,7 @@ while(True):
     	if(command == "exit"):
         	t1._Thread__stop()
         	t2._Thread__stop()
+		t_rip._Thread__stop()
         #t3._Thread__stop()
         	quit()
 	if(command == "table"):
@@ -253,9 +254,11 @@ while(True):
 	if (command == "router rip"):
 		rip_table = menu_rip()
 		rip_en = True
+		t_rip.start()
 	if (command == "no router rip"):
 		rip_en = False
 		rip_networks = []
+		t_rip._Thread__stop()
 		# TODO stop timer thread
 	if (command == "show rip"):
 		print "RIPv2 enable: ",rip_en
