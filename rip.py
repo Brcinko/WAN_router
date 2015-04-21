@@ -13,7 +13,6 @@ rip_ifaces = []
 
 def send_time_request(rip_base,route_table,ifaces):
 	routes = []
-	# paketik = 
 	routes = get_rip_routes(rip_base, route_table)
 	# routes = update_metric(routes)
 	# print routes
@@ -45,4 +44,20 @@ def get_rip_routes(rip_base,route_table):
 				routes.append({'network': net,'metric' : str(r['metric'])})
 	return routes
 	# print routes
+
+
+def get_from_rip(pkt, iface):
+	# print pkt.show()
+	routes = []	
+	for entry in pkt[RIPEntry]:
+		# print entry.show()
+		r = {'network': str(entry.addr), 'metric' : str(entry.metric), 'int': iface, 'netmask': str(entry.mask), 'next-hop' : str(entry.nextHop)}
+		routes.append(r)
+	print routes
+	return routes
+
+
+	
+
+
 

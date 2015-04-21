@@ -154,6 +154,12 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 			#updateTable(ifaceFrom, paketik.getfieldval('src'), thread)
         		#pomoc = paketik.getfieldval('dst')
         		#portTarget = getPort(pomoc, thread)
+			if RIP in paketik:
+				# print "mam rip"
+				for i in rip_ifaces:
+					# print "RIP ", i['int'], ifaceFrom
+					if ifaceFrom == i['int']:
+						rip_routes  = get_from_rip(paketik, ifaceFrom)
         		if (IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
 				print "Debug prisiel IP paket na smerovanie"
         			route = check_route(paketik[IP].dst)
