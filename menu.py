@@ -1,11 +1,16 @@
 from sys import stdin 
+from route import *
 
 eth0 = {}
 eth1 = {}
 rip_networks = []
 
+eth0_IP = "10.10.10.1"
+eth1_IP = "20.20.20.1"
 
-def menu_eth0():
+
+
+def menu_eth0(port):
 	print "CONFIG-IF eth0"
 	while(True):
                 #print "DEBUG second while"
@@ -18,15 +23,20 @@ def menu_eth0():
                         eth0['shutdown'] = True
                 if (comm == "ip add"):
                         print "Set IP (A.B.C.D)"
-                        eth0['ip'] = stdin.readline()
+                        eth0_IP = raw_input()
                         print "Set mask: "
-                        eth0['mask'] = stdin.readline()
+                        eth0['mask'] = raw_input()
+			eth0['int'] = port
+			eth0['metric'] = 1
+			eth0['IP'] = eth0_IP
+			eth0['protocol'] = 'C'
+			update_static_route(eth0)	
                 if (comm == "ex" or comm == "exit"):
                         break
 #	return eth0
 
 
-def menu_eth1():
+def menu_eth1(port):
 	print "CONFIG-IF eth1"
 	while(True):
 		#print "DEBUG second while"
@@ -39,7 +49,7 @@ def menu_eth1():
                         eth1['shutdown'] = True
                 if (comm == "ip add"):
                         print "Set IP (A.B.C.D)"
-                        eth1['ip'] = stdin.readline()
+                        eth1_IP = stdin.readline()
                         print "Set mask: "
                         eth1['mask'] = stdin.readline()
                 if (comm == "ex" or com == "exit"):

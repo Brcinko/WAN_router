@@ -13,17 +13,14 @@ from arp import *
 from icmp import *
 from stats import *
 from rip import *
+from route import *
+
 
 NULL = 0
 
 eth0 = {}
 eth1 = {}
 
-
-eth0_IP = "10.10.10.1" 
-eth1_IP = "20.20.20.1"
-
-route_table = []
 
 
 port1 = "eth2"
@@ -53,38 +50,6 @@ def set_rip_iface():
 			if r['network'] == net:
 				rip_ifaces.append({'int' : str(r['int']),'IP' : str(r['eth_IP'])})
 	# print rip_ifaces
-def find_index(routes):
-	i = 0
-        for r in route_table:
-                for ro in routes:
-                        ip = IPNetwork(str(ro['network']) + '/' + str(ro['netmask']))
-                        n = ip.prefixlen
-                        net = str(ro['network']) + '/' + str(n)
-			print "Kontrolujem prvu moju ", r['network'], net, i
-                        if r['network'] == net:
-                                return i
-		i += 1
-	return False		
-
-
-
-def update_route_table(routes, proto):
-	# remove old duplicates
-	index = find_index(routes)
-	if index is not False:
-		route_table.pop(index)
-	print routes
-	for r in routes:
-		# set all parameters
-		ip = IPNetwork(str(r['network']) + '/' + str(r['netmask']))
-		n = ip.prefixlen
-		net = str(r['network']) + '/' + str(n)
-		# set ethIP 
-		for i in rip_ifaces:
-			if r['int'] == i['int']:
-				ethIP = i['IP']
-		route = {'network' : net , 'next-hop' : r['next-hop'], 'metric' : r['metric'], 'protocol' : proto, 'int' : r['int'], 'eth_IP' : ethIP}
-		route_table.append(route)
 
 
 def update_ARP_table(IP,MAC):
@@ -150,13 +115,20 @@ def check_route(dstIP):
 					
 
 
-def rcv(ifaceFrom, ifaceTo, thread, ethIP):
+def rcv(ifaceFrom, ifaceTo, thread):
 	global stats
     	socks = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_ALL))
     	socks.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 2**30)
     	socks.bind((ifaceFrom, ETH_P_ALL))
 	# print "Cnucham na porte ", ifaceFrom 
 	while (True):
+        	if ifaceFrom == "eth2":
+                	global eth0_IP
+               		ethIP = eth0_IP
+        	else:
+                	global eth1_IP
+                	ethIP = eth1_IP
+
 		packet, info = socks.recvfrom(MTU)        
 		if (info[2] != socket.PACKET_OUTGOING):
 			# update stats
@@ -174,7 +146,7 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 				pkt = send_ICMP_reply(paketik,ethIP)
 				sendp(pkt, iface=ifaceFrom, verbose = 0)
 			if RIP in paketik and rip_en is True:
-				print "mam rip"
+				# print "mam rip"
 				for i in rip_ifaces:
 					# print "RIP ", i['int'], ifaceFrom
 					if ifaceFrom == i['int']:
@@ -211,9 +183,9 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 ####--------MAIN-----------####
 			
 def thr1():
-	rcv(port1, port2, t1, eth0_IP )
+	rcv(port1, port2, t1)
 def thr2():
-    rcv(port2, port1, t2, eth1_IP )
+    rcv(port2, port1, t2)
 #def thr3():
 #    down()
 
@@ -260,9 +232,9 @@ while(True):
 	if (command == "help"):
 		help()
 	if (command == "int eth0"):
-		eth0 = menu_eth0()
+		menu_eth0(port1)
 	if (command == "int eth1"):
-		eth1 = menu_eth1()
+		menu_eth1(port2)
 	if (command == "show ip route"):
 		for route in route_table:
 			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int'] + "   metric: "  + route['metric']
