@@ -51,18 +51,40 @@ def set_rip_iface():
 			if r['network'] == net:
 				rip_ifaces.append({'int' : str(r['int']),'IP' : str(r['eth_IP'])})
 	# print rip_ifaces
+def find_index(routes):
+	i = 0
+        for r in route_table:
+                for ro in routes:
+                        ip = IPNetwork(str(ro['network']) + '/' + str(ro['netmask']))
+                        n = ip.prefixlen
+                        net = str(ro['network']) + '/' + str(n)
+			print "Kontrolujem prvu moju ", r['network'], net, i
+                        if r['network'] == net:
+                                return i
+		i += 1
+	return False		
+
 
 
 def update_route_table(routes, proto):
+	# remove old duplicates
+	index = find_index(routes)
+	if index is not False:
+		route_table.pop(index)
+	print routes
 	for r in routes:
+		# set all parameters
 		ip = IPNetwork(str(r['network']) + '/' + str(r['netmask']))
 		n = ip.prefixlen
 		net = str(r['network']) + '/' + str(n)
+		# set ethIP 
 		for i in rip_ifaces:
 			if r['int'] == i['int']:
 				ethIP = i['IP']
 		route = {'network' : net , 'next-hop' : r['next-hop'], 'metric' : r['metric'], 'protocol' : proto, 'int' : r['int'], 'eth_IP' : ethIP}
 		route_table.append(route)
+
+
 def update_ARP_table(IP,MAC):
 	lock.acquire()
 	arp_table.update({IP: [MAC]})
@@ -165,13 +187,13 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
         		#pomoc = paketik.getfieldval('dst')
         		#portTarget = getPort(pomoc, thread)
 			if RIP in paketik:
-				# print "mam rip"
+				print "mam rip"
 				for i in rip_ifaces:
 					# print "RIP ", i['int'], ifaceFrom
 					if ifaceFrom == i['int']:
 						rip_routes  = get_from_rip(paketik, ifaceFrom)
         					update_route_table(rip_routes, "R")
-			if (IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
+			if (RIP not in paketik and IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
 				print "Debug prisiel IP paket na smerovanie"
         			route = check_route(paketik[IP].dst)
 				if route is not False:
@@ -269,7 +291,7 @@ while(True):
 		eth1 = menu_eth1()
 	if (command == "show ip route"):
 		for route in route_table:
-			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int']  + route['metric']
+			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int'] + "   metric: "  + route['metric']
 	if (command == "ip route"):
 		net = raw_input("Network(IP/prefix):")
 		next_hop = raw_input("Next-hop(IP):")
