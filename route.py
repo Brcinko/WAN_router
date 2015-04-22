@@ -39,7 +39,7 @@ def update_route_table(routes, proto):
                 for i in rip_ifaces:
                         if r['int'] == i['int']:
                                 ethIP = i['IP']
-                route = {'network' : net , 'next-hop' : r['next-hop'], 'metric' : r['metric'], 'protocol' : proto, 'int' : r['int'], 'eth_IP' : ethIP}
+                route = {'timer' : 240 , 'active': True, 'network' : net , 'next-hop' : r['next-hop'], 'metric' : r['metric'], 'protocol' : proto, 'int' : r['int'], 'eth_IP' : ethIP}
                 route_table.append(route)
 
 

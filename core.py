@@ -47,18 +47,22 @@ def rip_timers():
 		if rip_en is not False:
 			global route_table
 			time.sleep(1)
+			i = 0
 			for r in route_table:
 				if r['protocol'] == 'R':	
-					# int(r['timer']) -= 1
+					# print "R route",route_table[i]['network'], str(route_table[i]['timer'])
+					route_table[i]['timer'] -= 1
+					
 					if r['timer'] == 180: # TODO time
-						pass
-						# zmen ma na invalida
+						route_table[i]['active'] = False
 					if r['timer'] == 0: # TODO time
 						pass
 						# vymaz ma
-					if r['active'] is True and r['metric'] == 16:
+					if r['active'] is True and r['metric'] == '16':
 						# dosla mi poison a nieco musim spravit
-						r['active'] = False
+						# print "mame poison"
+						route_table[i]['active'] = False
+				i += 1
 
 
 
@@ -167,11 +171,14 @@ def rcv(ifaceFrom, ifaceTo, thread):
 				sendp(pkt, iface=ifaceFrom, verbose = 0)
 			if RIP in paketik and rip_en is True:
 				# print "mam rip"
-				for i in rip_ifaces:
-					# print "RIP ", i['int'], ifaceFrom
-					if ifaceFrom == i['int']:
-						rip_routes  = get_from_rip(paketik, ifaceFrom)
-        					update_route_table(rip_routes, "R")
+				if paketik[RIP].cmd == 2:
+					for i in rip_ifaces:
+						# print "RIP ", i['int'], ifaceFrom
+						if ifaceFrom == i['int']:
+							rip_routes  = get_from_rip(paketik, ifaceFrom)
+        						update_route_table(rip_routes, "R")
+				if paketik[RIP].cmd == 1:
+					send_time_request(rip_networks,route_table,rip_ifaces)
 			if (RIP not in paketik and IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
 				print "Debug prisiel IP paket na smerovanie"
         			route = check_route(paketik[IP].dst)
@@ -279,7 +286,6 @@ while(True):
 		rip_en = False
 		del rip_networks[:]
 		del rip_ifaces[:]
-		# t_rip._Thread__stop()
 	if (command == "show rip"):
 		print "----RIP information base----"
 		print "!"
