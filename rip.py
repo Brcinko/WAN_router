@@ -39,9 +39,7 @@ def send_time_request(rip_base,route_table,ifaces):
 def get_rip_routes(rip_base,route_table):
 	routes = []
 	for r in route_table:
-		for net in rip_base:
-			if r['network'] == net:
-				routes.append({'network': net,'metric' : str(r['metric'])})
+		routes.append({'network': r['network'],'metric' : str(r['metric'])})
 	return routes
 	# print routes
 
@@ -51,8 +49,26 @@ def get_from_rip(pkt, iface):
 	routes = []	
 	for entry in pkt[RIPEntry]:
 		# print entry.show()
-		r = {'network': str(entry.addr), 'metric' : str(entry.metric), 'int': iface, 'netmask': str(entry.mask), 'next-hop' : str(entry.nextHop)}
-		routes.append(r)
+		if str(entry.metric) is not '16':
+			r = {'network': str(entry.addr), 'metric' : str(entry.metric), 'int': iface, 'netmask': str(entry.mask), 'next-hop' : str(entry.nextHop)}
+			routes.append(r)
+		else:
+			pass
+			for iface in ifaces:
+                		eth = Ether()
+                		ip = IP()
+                		ip.src= str(iface['IP'])
+                		ip.dst='224.0.0.9'
+                		ip.ttl = 1
+                		u = UDP(sport=520, dport=520)
+                		rh = RIP(cmd='resp', version=2)
+                		pkt = eth/ip/u/rh
+                		pkt /= entry
+                		eth = str(iface['int'])
+                		eth = ''.join(eth.split())
+                		# print "sending rip on", eth
+                		sendp(pkt,iface = eth, verbose = 0)
+
 	print routes
 	return routes
 

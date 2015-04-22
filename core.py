@@ -51,12 +51,12 @@ def rip_timers():
 			index = False
 			for r in route_table:
 				if r['protocol'] == 'R':	
-					# print "R route",route_table[i]['network'], str(route_table[i]['timer'])
+					print "R route",route_table[i]['network'], str(route_table[i]['timer'])
 					route_table[i]['timer'] -= 1
 					
-					if r['timer'] == 180: # TODO time
+					if r['timer'] == 60: 
 						route_table[i]['active'] = False
-					if r['timer'] == 0: # TODO time
+					if r['timer'] == 0:
 						index = i
 						break
 					if r['active'] is True and r['metric'] == '16':

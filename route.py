@@ -31,7 +31,7 @@ def update_route_table(routes, proto):
                 route_table.pop(index)
         # print routes
         for r in routes:
-                # set all parameters
+		# set all parameters
                 ip = IPNetwork(str(r['network']) + '/' + str(r['netmask']))
                 n = ip.prefixlen
                 net = str(r['network']) + '/' + str(n)
