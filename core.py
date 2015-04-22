@@ -48,6 +48,7 @@ def rip_timers():
 			global route_table
 			time.sleep(1)
 			i = 0
+			index = False
 			for r in route_table:
 				if r['protocol'] == 'R':	
 					# print "R route",route_table[i]['network'], str(route_table[i]['timer'])
@@ -56,14 +57,16 @@ def rip_timers():
 					if r['timer'] == 180: # TODO time
 						route_table[i]['active'] = False
 					if r['timer'] == 0: # TODO time
-						pass
-						# vymaz ma
+						index = i
+						break
 					if r['active'] is True and r['metric'] == '16':
 						# dosla mi poison a nieco musim spravit
 						# print "mame poison"
 						route_table[i]['active'] = False
+						route_table[i]['timer'] = 180
 				i += 1
-
+			if index is not False:
+				route_table.pop(index)
 
 
 
