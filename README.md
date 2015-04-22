@@ -29,7 +29,7 @@ TODO list
    
    -static NAT, dynamic NAT
    
-   -menu(infinity loops), iface as object, starting a stoping threads in menu
+   -~~menu(infinity loops), iface as object, starting a stoping threads in menu~~
    
    -PAT(otional)
    
