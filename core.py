@@ -35,13 +35,15 @@ rip_en = False
 port = ""
 th = 0
 flag = 0
-
+iterator = 0
 stats = Stat()
 
 def rip_up_send():
 	while(True):
-		send_time_request(rip_networks,route_table,rip_ifaces)
-		time.sleep(30)
+		if rip_en is not False:
+		
+			send_time_request(rip_networks,route_table,rip_ifaces)
+			time.sleep(30)
 
 
 def set_rip_iface():
@@ -94,18 +96,6 @@ def updateTable(port, srcMAC, thread):
     lock.acquire()
     table.update({srcMAC: [port, time.time(), 10]})
     lock.release()
-
-
-def down():
-    lock.acquire()
-    for pom in table:
-        minus = table[pom][2] - 1
-        table[pom][2] = minus
-        if(table[pom][2] == 0):
-            del table[pom]
-            break
-    lock.release()
-    time.sleep(1)
 
 
 def get_from_arp(dstIP):
@@ -183,10 +173,7 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
 				print "Debug prisiel ICMP"
 				pkt = send_ICMP_reply(paketik,ethIP)
 				sendp(pkt, iface=ifaceFrom, verbose = 0)
-			#updateTable(ifaceFrom, paketik.getfieldval('src'), thread)
-        		#pomoc = paketik.getfieldval('dst')
-        		#portTarget = getPort(pomoc, thread)
-			if RIP in paketik:
+			if RIP in paketik and rip_en is True:
 				print "mam rip"
 				for i in rip_ifaces:
 					# print "RIP ", i['int'], ifaceFrom
@@ -218,24 +205,11 @@ def rcv(ifaceFrom, ifaceTo, thread, ethIP):
                                                         print msg, "Chyba pri odosielani na druhy iface"
 						print "nemam ARP ziadam ARP na", route['next-hop'] , arp.show()
 
-			# print "Koncim"			
-#				if portTarget:
-#                			get_from_arp("10.10.10.1")
-#					send_ARP_req(ethIP,"10.10.10.1")
-#					dstMAC = (socks, ethIP)
-#					# treba vyriesit odosielanie na MAC
-#					sendp(paketik, iface = portTarget[0], verbose = 0)
-#                			flag = 0
-#                			print "Poslal som najdeny, " ,ifaceFrom, ifaceTo
-#            			else:
-#                			# print "SOMTU!!!"
-#                                       get_from_arp(str(paketik[IP].dst))
-#                                       arp_pkt = send_ARP_req(ethIP,"10.10.10.25")
-#                                       dstMAC = (socks, ethIP)
-#					sendp (arp_pkt, iface = ifaceTo, verbose = 0)
-#					sendp(paketik, iface = ifaceTo, verbose = 0)
-#                			print "Nenajdeny som odoslal",ifaceFrom,ifaceTo
+			# print "Koncim"
 
+
+####--------MAIN-----------####
+			
 def thr1():
 	rcv(port1, port2, t1, eth0_IP )
 def thr2():
@@ -302,14 +276,15 @@ while(True):
 	if (command == "router rip"):
 		rip_table = menu_rip()
 		set_rip_iface()
-		if rip_en is False: 
+		if iterator is 0: 
 			t_rip.start()
 		rip_en = True
+		iterator += 1
 	if (command == "no router rip"):
 		rip_en = False
-		rip_networks = []
+		del rip_networks[:]
+		del rip_ifaces[:]
 		# t_rip._Thread__stop()
-		# TODO stop timer thread
 	if (command == "show rip"):
 		print "----RIP information base----"
 		print "!"
