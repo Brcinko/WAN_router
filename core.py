@@ -42,6 +42,26 @@ def rip_up_send():
 			send_time_request(rip_networks,route_table,rip_ifaces)
 			time.sleep(30)
 
+def rip_timers():
+	while(True):
+		if rip_en is not False:
+			global route_table
+			time.sleep(1)
+			for r in route_table:
+				if r['protocol'] == 'R':	
+					# int(r['timer']) -= 1
+					if r['timer'] == 180: # TODO time
+						pass
+						# zmen ma na invalida
+					if r['timer'] == 0: # TODO time
+						pass
+						# vymaz ma
+					if r['active'] is True and r['metric'] == 16:
+						# dosla mi poison a nieco musim spravit
+						r['active'] = False
+
+
+
 
 def set_rip_iface():
 	global rip_ifaces
@@ -108,7 +128,7 @@ def get_arp(pkt, ethIP,ifaceFrom):
 def check_route(dstIP):
 	for route in route_table:
 		flag = IPAddress(str(dstIP)) in IPNetwork(route['network'])
-		if flag is True:
+		if flag is True and route['active'] is True:
 			print "Debug, mam zhodu na: ",str(route['network']),str(route['int'])
 			return route
 	return False
@@ -192,23 +212,25 @@ def thr2():
 lock = threading.Lock()
 def thr4():
 	rip_up_send()
+def thr5():
+	rip_timers()
 
 t1 = threading.Thread(target = thr1 )
 t2 = threading.Thread(target = thr2 )
 #t3 = threading.Thread(target = thr3)
 t_rip = threading.Thread(target = thr4)
-
+t_rip_time = threading.Thread(target = thr5)
 t1.start()
 t2.start()
 #time.sleep(1)
 #t3.start()
 
 route = {}
-route.update({'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth2', 'eth_IP':'10.10.10.1'})
+route.update({'active': True,'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth2', 'eth_IP':'10.10.10.1'})
 
 route_table.append(route)
 route = {}
-route.update({'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth3', 'eth_IP':'20.20.20.1'})
+route.update({'active': True, 'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth3', 'eth_IP':'20.20.20.1'})
 
 route_table.append(route)
 
@@ -220,7 +242,7 @@ while(True):
         	t1._Thread__stop()
         	t2._Thread__stop()
 		t_rip._Thread__stop()
-        #t3._Thread__stop()
+		t_rip_time._Thread__stop()
         	quit()
 	if(command == "table"):
 		print table
@@ -237,7 +259,7 @@ while(True):
 		menu_eth1(port2)
 	if (command == "show ip route"):
 		for route in route_table:
-			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int'] + "   metric: "  + route['metric']
+			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int'] + "   metric: "  + route['metric'] + "   active: " + str(route['active'])
 	if (command == "ip route"):
 		net = raw_input("Network(IP/prefix):")
 		next_hop = raw_input("Next-hop(IP):")
@@ -250,6 +272,7 @@ while(True):
 		set_rip_iface()
 		if iterator is 0: 
 			t_rip.start()
+			t_rip_time.start()
 		rip_en = True
 		iterator += 1
 	if (command == "no router rip"):
