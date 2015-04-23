@@ -14,6 +14,7 @@ from icmp import *
 from stats import *
 from rip import *
 from route import *
+from nat import *
 
 
 NULL = 0
@@ -307,7 +308,24 @@ while(True):
                 print "Eth1 out: ", stats.eth1_out
 	if (command == "reset st"):
 		reset_stats()
-
+	if (command == "ip nat static"):
+		nat_en = 'static'
+		in_int = raw_input('Incoming interface: ')
+		out_int = raw_input('Outgoing interface: ')
+		ip = raw_input('Inside IP: ')
+		in_networks.append(ip)
+		ip = raw_input('Outside IP: ')
+		out_networks.append(ip)
+	if (command == 'no ip nat'):
+		reset_nat()
+	if (command == 'show ip nat'):
+                print "----NAT information base----"
+                print "!"
+                print "NAT enable: ",nat_en
+                print "Incoming interface: ",in_int, "   Outgoing iterface: ", out_int
+                print "Inside addresses: ", in_networks
+		print "Outside adresses: ", out_networks
+                print "!"
 
 
 
