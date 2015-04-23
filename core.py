@@ -30,6 +30,7 @@ table = {}
 arp_table = {}
 rip_table = []
 rip_en = False
+nat_en = False
 port = ""
 th = 0
 flag = 0
@@ -137,7 +138,7 @@ def check_route(dstIP):
 	for route in route_table:
 		flag = IPAddress(str(dstIP)) in IPNetwork(route['network'])
 		if flag is True and route['active'] is True:
-			print "Debug, mam zhodu na: ",str(route['network']),str(route['int'])
+			# print "Debug, mam zhodu na: ",str(route['network']),str(route['int'])
 			return route
 	return False
 					
@@ -161,10 +162,10 @@ def rcv(ifaceFrom, ifaceTo, thread):
 		if (info[2] != socket.PACKET_OUTGOING):
 			# update stats
 			stats = update_stats("in",ifaceFrom, stats)
-		#	packet, info = socks.recvfrom(MTU)
         		paketik = Ether(packet)
 			# print "Catch on int: ", ifaceFrom
 			# print paketik.summary()
+			
 			if ARP in paketik:
 				# print "Debug idem do funkcie ARP"
         			get_arp(paketik,ethIP,ifaceFrom)
@@ -184,7 +185,20 @@ def rcv(ifaceFrom, ifaceTo, thread):
 				if paketik[RIP].cmd == 1:
 					send_time_request(rip_networks,route_table,rip_ifaces)
 			if (RIP not in paketik and IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
-				print "Debug prisiel IP paket na smerovanie"
+				# print "Debug prisiel IP paket na smerovanie"
+				if nat_en == 'static':
+                                	if in_int == ifaceFrom and str(paketik[IP].src) == in_networks[0]:
+                                        	# vymen zdrojovu za vonkajsiu IP
+                                        	print "SOM TU"
+						paketik[IP].src = out_networks[0]
+                                        	sendp(paketik, iface = ifaceTo, verbose = 1)
+						print paketik.summary()
+						continue
+                                	if out_int == ifaceFrom and paketik[IP].dst == out_networks[0]:
+                                        	paketik[IP].dst = in_networks[0]
+						sendp(paketik, iface = ifaceTo, verbose = 1)
+						print paketik.summary()
+						continue
         			route = check_route(paketik[IP].dst)
 				if route is not False:
 					dstMAC = get_from_arp(route['next-hop'])
@@ -196,7 +210,7 @@ def rcv(ifaceFrom, ifaceTo, thread):
 						pkt[Ether].src = hlp_dst
 						# TODO decrement ttl
 						try:
-							print pkt.show()
+							# print pkt.summary()
 							sendp(pkt,iface=ifaceTo, verbose = 0)
 						except Scapy_Exception as msg:
         						print msg, "Chyba pri odosielani na druhy iface"
@@ -318,6 +332,7 @@ while(True):
 		out_networks.append(ip)
 	if (command == 'no ip nat'):
 		reset_nat()
+		nat_en = 'none'
 	if (command == 'show ip nat'):
                 print "----NAT information base----"
                 print "!"
