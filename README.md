@@ -27,7 +27,7 @@ TODO list
    
    -RIP logic
    
-   -static NAT, dynamic NAT
+   -~~static NAT~~(maybe), dynamic NAT
    
    -~~menu(infinity loops), iface as object, starting a stoping threads in menu~~
    
