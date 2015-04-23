@@ -275,8 +275,11 @@ while(True):
 		next_hop = raw_input("Next-hop(IP):")
 		interface = raw_input("Interface(eth):")
 		route = {}
-		route.update({'network':net,'next-hop': next_hop,'protocol':'S','metric':'1', 'int':interface})
+		route.update({'network':net,'next-hop': next_hop,'protocol':'S','metric':'1', 'int':interface, 'active': True})
 		route_table.append(route)	
+	if (command == "no ip route"):
+		comm = raw_input('set Network_addr/prefix: ')
+		delete_static_route(comm)
 	if (command == "router rip"):
 		rip_table = menu_rip()
 		set_rip_iface()

@@ -70,8 +70,9 @@ def remove_old_connected(eth):
 	if index is not False:
 		route_table.pop(index)	
 		
-
-
+##################################
+# actually update connected route
+################################
 def update_static_route(port):
 	route = {}
 	route = set_route(port)
@@ -79,4 +80,22 @@ def update_static_route(port):
 	remove_old_connected(route['int'])
 	route_table.append(route)
 
+def index_by_net(net):
+        i = 0
+        for r in route_table:
+                if r['network'] == net and r['protocol'] == 'S':
+                        return i
+                i += 1
+        return False
 
+
+def delete_static_route(net):
+	index = index_by_net(net)
+	if index is not False:
+		route_table.pop(index)
+	else:
+		print "Error: Bad network address or prefix"
+
+
+
+	
