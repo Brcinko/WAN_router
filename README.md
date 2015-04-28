@@ -25,7 +25,10 @@ TODO list
    
    -~~sending packets to another interface (try sniff() instead of scket recieveing)~~
    
+   - looking on metric 
+   
    -RIP logic
+     - Trigger updates
    
    -~~static NAT~~(maybe), dynamic NAT
    
