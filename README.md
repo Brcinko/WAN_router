@@ -21,19 +21,19 @@ Ifaces have to be in promisc mode (`ifconfig eth0 promisc`). There maz be proble
 TODO list
 ---------
 
-   -~~statistics (in/out)~~
+   - ~~statistics (in/out)~~
    
-   -~~sending packets to another interface (try sniff() instead of scket recieveing)~~
+   - ~~sending packets to another interface (try sniff() instead of scket recieveing)~~
    
    - looking on metric 
    
-   -RIP logic
+   - RIP logic
      - Trigger updates
    
-   -~~static NAT~~(maybe), dynamic NAT
+   - ~~static NAT~~(maybe), dynamic NAT
    
-   -~~menu(infinity loops), iface as object, starting a stoping threads in menu~~
+   - ~~menu(infinity loops), iface as object, starting a stoping threads in menu~~
    
-   -PAT(otional)
+   - PAT(otional)
    
-   -Port Forwarding(opt)
+   - Port Forwarding(opt)
