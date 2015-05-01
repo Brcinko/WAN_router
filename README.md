@@ -25,7 +25,7 @@ TODO list
    
    - ~~sending packets to another interface (try sniff() instead of scket recieveing)~~
    
-   - looking on metric 
+   - ~~looking on metric~~ 
    
    - RIP logic
      - Trigger updates
