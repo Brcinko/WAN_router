@@ -167,7 +167,7 @@ def rcv(ifaceFrom, ifaceTo, thread):
     	socks.bind((ifaceFrom, ETH_P_ALL))
 	# print "Cnucham na porte ", ifaceFrom 
 	while (True):
-        	if ifaceFrom == "eth2":
+        	if ifaceFrom == port1:
                 	global eth0_IP
                		ethIP = eth0_IP
         	else:
@@ -209,12 +209,36 @@ def rcv(ifaceFrom, ifaceTo, thread):
 						paketik[IP].src = out_networks[0]
                                         	sendp(paketik, iface = ifaceTo, verbose = 1)
 						print paketik.summary()
-						continue
+                                        	dstMAC = get_from_arp(route['next-hop'])
+                                        	if dstMAC is not False:
+                                                	pkt = paketik
+                                                	hlp_dst = paketik.getfieldval('dst')
+                                                	pkt[Ether].dst = dstMAC
+                                                	pkt[Ether].src = hlp_dst
+                                                        sendp(pkt,iface=ifaceTo, verbose = 0)
+							continue
+						else:
+	                                                arp = send_ARP_req(route['eth_IP'],route['next-hop'])
+                                                        sendp(arp,iface=ifaceTo, verbose = 0)
+							continue
+
+							
                                 	if out_int == ifaceFrom and paketik[IP].dst == out_networks[0]:
                                         	paketik[IP].dst = in_networks[0]
 						sendp(paketik, iface = ifaceTo, verbose = 1)
 						print paketik.summary()
-						continue
+                                                dstMAC = get_from_arp(route['next-hop'])
+                                                if dstMAC is not False:
+                                                        pkt = paketik
+                                                        hlp_dst = paketik.getfieldval('dst')
+                                                        pkt[Ether].dst = dstMAC
+                                                        pkt[Ether].src = hlp_dst
+                                                        sendp(pkt,iface=ifaceTo, verbose = 0)
+                                                        continue
+                                                else:
+                                                        arp = send_ARP_req(route['eth_IP'],route['next-hop'])
+                                                        sendp(arp,iface=ifaceTo, verbose = 0)
+
         			route = check_route(paketik[IP].dst)
 				if route is not False:
 					dstMAC = get_from_arp(route['next-hop'])

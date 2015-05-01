@@ -61,27 +61,31 @@ def get_rip_routes(rip_base,route_table):
 def get_from_rip(pkt, iface):
 	# print pkt.show()
 	routes = []	
-	for entry in pkt[RIPEntry]:
+	rip_layer = pkt.getlayer(RIP)
+	entry = rip_layer[RIPEntry]
+	while type(entry) !=  NoPayload:
 		# print entry.show()
 		if str(entry.metric) is not '16':
 			r = {'network': str(entry.addr), 'metric' : str(entry.metric), 'int': iface, 'netmask': str(entry.mask), 'next-hop' : str(entry.nextHop)}
 			routes.append(r)
-		else:
-			pass
-			for iface in ifaces:
-                		eth = Ether()
-                		ip = IP()
-                		ip.src= str(iface['IP'])
-                		ip.dst='224.0.0.9'
-                		ip.ttl = 1
-                		u = UDP(sport=520, dport=520)
-                		rh = RIP(cmd='resp', version=2)
-                		pkt = eth/ip/u/rh
-                		pkt /= entry
-                		eth = str(iface['int'])
-                		eth = ''.join(eth.split())
-                		# print "sending rip on", eth
-                		sendp(pkt,iface = eth, verbose = 0)
+		
+		#else:
+		#	pass
+		#	for iface in ifaces:
+                #		eth = Ether()
+                #		ip = IP()
+                #		ip.src= str(iface['IP'])
+                #		ip.dst='224.0.0.9'
+                #		ip.ttl = 1
+                #		u = UDP(sport=520, dport=520)
+                #		rh = RIP(cmd='resp', version=2)
+                #		pkt = eth/ip/u/rh
+               	#		pkt /= entry
+                #		eth = str(iface['int'])
+                #		eth = ''.join(eth.split())
+                #		# print "sending rip on", eth
+                #		sendp(pkt,iface = eth, verbose = 0)
+		entry = entry.payload
 
 	# print routes
 	return routes
