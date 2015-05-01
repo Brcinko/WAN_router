@@ -8,6 +8,8 @@ rip_networks = []
 eth0_IP = "10.10.10.1"
 eth1_IP = "20.20.20.1"
 
+port1 = "eth2"
+port2 = "eth3"
 
 
 def menu_eth0(port):
@@ -20,7 +22,7 @@ def menu_eth0(port):
                 if (comm == "no sh"  and  eth0_IP is not NULL):
                         eth0['shutdwon'] = False
                 if (comm == "sh" or comm == "shutdown"):
-			deactive_connected_route(port1)
+			deactivate_connected_route(port1)
                 if (comm == "ip add"):
                         print "Set IP (A.B.C.D)"
                         eth0_IP = raw_input()
@@ -30,6 +32,9 @@ def menu_eth0(port):
 			eth0['metric'] = 1
 			eth0['IP'] = eth0_IP
 			eth0['protocol'] = 'C'
+			eth0['active'] = True
+			print "Set next-hop: "
+			eth0['next-hop'] = raw_input()
 			update_static_route(eth0)	
                 if (comm == "ex" or comm == "exit"):
                         break
@@ -46,13 +51,22 @@ def menu_eth1(port):
                 if (comm == "no sh"  and  eth0_IP is not NULL):
                         eth1['shutdown'] = False
                 if (comm == "sh" or comm == "shutdown"):
-                        deactive_connected_route(port2)
+                        deactivate_connected_route(port2)
                 if (comm == "ip add"):
                         print "Set IP (A.B.C.D)"
-                        eth1_IP = stdin.readline()
+                        eth0_IP = raw_input()
                         print "Set mask: "
-                        eth1['mask'] = stdin.readline()
-                if (comm == "ex" or com == "exit"):
+                        eth0['mask'] = raw_input()
+                        eth0['int'] = port
+                        eth0['metric'] = 1
+                        eth0['IP'] = eth0_IP
+                        eth0['protocol'] = 'C'
+			eth0['active'] = True
+			print "Set netxt-hop: "
+			eth0['next-hop'] = raw_input()
+                        update_static_route(eth0)
+
+                if (comm == "ex" or comm == "exit"):
                         break
 # 	return eth1
 

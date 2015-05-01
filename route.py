@@ -61,7 +61,7 @@ def set_route(eth):
 	ip = IPNetwork(hlpstr)
 	net = str(ip.network) + '/' + str(ip.prefixlen)
 	route = {}
-	route.update({'actve': True ,'network': net, 'next-hop': '0.0.0.0', 'protocol': eth['protocol'], 'metric': str(eth['metric']), 'int': eth['int'], 'eth_IP': eth['IP']})
+	route.update({'active': True ,'network': net, 'next-hop': '0.0.0.0', 'protocol': eth['protocol'], 'metric': str(eth['metric']), 'int': eth['int'], 'eth_IP': eth['IP']})
 	
 	return route
 

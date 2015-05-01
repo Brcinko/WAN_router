@@ -66,7 +66,7 @@ def get_from_rip(pkt, iface):
 	while type(entry) !=  NoPayload:
 		# print entry.show()
 		if str(entry.metric) is not '16':
-			r = {'network': str(entry.addr), 'metric' : str(entry.metric), 'int': iface, 'netmask': str(entry.mask), 'next-hop' : str(entry.nextHop)}
+			r = {'network': str(entry.addr), 'metric' : str(entry.metric), 'int': iface, 'netmask': str(entry.mask), 'next-hop' : str(pkt[IP].src)}
 			routes.append(r)
 		
 		#else:

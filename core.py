@@ -26,8 +26,6 @@ eth1 = {}
 
 
 
-port1 = "eth2"
-port2 = "eth3"
 table = {}
 arp_table = {}
 rip_table = []
@@ -78,12 +76,11 @@ def rip_timers():
 						send_poison(r,rip_ifaces)
 						route_table[i]['active'] = False
 						route_table[i]['timer'] = poison_time
-				i += 1
 				if r['protocol'] == 'C' and r['active'] is False:
 					send_poison(r,rip_ifaces)
 					index = i
 					break
-					
+				i += 1	
 			if index is not False:
 				route_table.pop(index)
 
