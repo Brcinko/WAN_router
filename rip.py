@@ -8,8 +8,18 @@ route_table:
 
 rip_base: '10.10.10.0/24'
 """
-rip_ifaces = []
+"""
+rip_routes:
 
+
+"""
+
+rip_ifaces = []
+poison_time = 120
+
+################################
+###Its response actually########
+################################
 
 def send_time_request(rip_base,route_table,ifaces):
 	routes = []
@@ -26,10 +36,13 @@ def send_time_request(rip_base,route_table,ifaces):
 		rh = RIP(cmd='resp', version=2)
 		pkt = eth/ip/u/rh	
 		for route in routes:
-			entry = IPNetwork(route['network'])
-			mtr = (int(route['metric']) + 1) if int(route['metric']) < 16 else 16
-			r = RIPEntry(addr = str(entry.network), mask = str(entry.netmask), metric = mtr)	
-			pkt /=r
+			if str(route['protocol']) == 'R' and str(iface['int']) == str(route['int']):
+				pass
+			else:
+				entry = IPNetwork(route['network'])
+				mtr = (int(route['metric']) + 1) if int(route['metric']) < 16 else 16
+				r = RIPEntry(addr = str(entry.network), mask = str(entry.netmask), metric = mtr)	
+				pkt /=r
 		eth = str(iface['int'])
 		eth = ''.join(eth.split())
 		# print "sending rip on", eth
@@ -39,9 +52,10 @@ def send_time_request(rip_base,route_table,ifaces):
 def get_rip_routes(rip_base,route_table):
 	routes = []
 	for r in route_table:
-		routes.append({'network': r['network'],'metric' : str(r['metric'])})
+		if r['protocol'] != 'S': # and is in rip base
+			routes.append({'network': r['network'],'metric' : str(r['metric']), 'int': str(r['int']), 'protocol': r['protocol']})
+	print routes
 	return routes
-	# print routes
 
 
 def get_from_rip(pkt, iface):
@@ -69,11 +83,30 @@ def get_from_rip(pkt, iface):
                 		# print "sending rip on", eth
                 		sendp(pkt,iface = eth, verbose = 0)
 
-	print routes
+	# print routes
 	return routes
 
 
 	
+def send_poison(route,ifaces):
+
+
+	for iface in ifaces:
+                eth = Ether()
+                ip = IP()
+                ip.src= str(iface['IP'])
+                ip.dst='224.0.0.9'
+                ip.ttl = 1
+                u = UDP(sport=520, dport=520)
+                rh = RIP(cmd='resp', version=2)
+                pkt = eth/ip/u/rh
+                entry = IPNetwork(route['network'])
+                r = RIPEntry(addr = str(entry.network), mask = str(entry.netmask), metric = 16)
+               	pkt /=r
+		eth = str(iface['int'])
+                eth = ''.join(eth.split())
+                # print "sending rip on", eth
+                sendp(pkt,iface = eth, verbose = 0)
 
 
 

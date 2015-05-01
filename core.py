@@ -7,6 +7,8 @@ from scapy.all import *
 from scapy.error import Scapy_Exception
 from netaddr import *
 import time
+import operator
+
 from help import *
 from menu import *
 from arp import *
@@ -37,6 +39,15 @@ flag = 0
 iterator = 0
 stats = Stat()
 
+
+def sort_table(route_table):
+	while(True):
+		if route_table:
+			route_table.sort(key=operator.itemgetter('metric'))			
+
+
+
+
 def rip_up_send():
 	while(True):
 		if rip_en is not False:
@@ -53,7 +64,7 @@ def rip_timers():
 			index = False
 			for r in route_table:
 				if r['protocol'] == 'R':	
-					print "R route",route_table[i]['network'], str(route_table[i]['timer'])
+					# print "R route",route_table[i]['network'], str(route_table[i]['timer'])
 					route_table[i]['timer'] -= 1
 					
 					if r['timer'] == 60: 
@@ -63,9 +74,10 @@ def rip_timers():
 						break
 					if r['active'] is True and r['metric'] == '16':
 						# dosla mi poison a nieco musim spravit
-						# print "mame poison"
+						print "mame poison"
+						send_poison(r,rip_ifaces)
 						route_table[i]['active'] = False
-						route_table[i]['timer'] = 180
+						route_table[i]['timer'] = poison_time
 				i += 1
 			if index is not False:
 				route_table.pop(index)
@@ -138,6 +150,10 @@ def check_route(dstIP):
 	for route in route_table:
 		flag = IPAddress(str(dstIP)) in IPNetwork(route['network'])
 		if flag is True and route['active'] is True:
+			ip = IPNetwork(route['network'])
+			if str(ip.broadcast) == str(dstIP):
+				print "Broadcast"
+				return False
 			# print "Debug, mam zhodu na: ",str(route['network']),str(route['int'])
 			return route
 	return False
@@ -210,7 +226,7 @@ def rcv(ifaceFrom, ifaceTo, thread):
 						pkt[Ether].src = hlp_dst
 						# TODO decrement ttl
 						try:
-							# print pkt.summary()
+							print pkt.summary()
 							sendp(pkt,iface=ifaceTo, verbose = 0)
 						except Scapy_Exception as msg:
         						print msg, "Chyba pri odosielani na druhy iface"
@@ -239,15 +255,18 @@ def thr4():
 	rip_up_send()
 def thr5():
 	rip_timers()
+def thr6():
+	sort_table(route_table)
 
 t1 = threading.Thread(target = thr1 )
 t2 = threading.Thread(target = thr2 )
 #t3 = threading.Thread(target = thr3)
 t_rip = threading.Thread(target = thr4)
 t_rip_time = threading.Thread(target = thr5)
+t_sort = threading.Thread(target = thr6)
 t1.start()
 t2.start()
-#time.sleep(1)
+time.sleep(1)
 #t3.start()
 
 route = {}
@@ -259,7 +278,7 @@ route.update({'active': True, 'network':'20.20.20.0/24','next-hop':'20.20.20.20'
 
 route_table.append(route)
 
-
+t_sort.start()
 
 while(True):
 	command = raw_input('R1(config)#')
@@ -268,6 +287,7 @@ while(True):
         	t2._Thread__stop()
 		t_rip._Thread__stop()
 		t_rip_time._Thread__stop()
+		t_sort._Thread__stop()
         	quit()
 	if(command == "table"):
 		print table
