@@ -19,8 +19,8 @@ def menu_eth0(port):
                        	print "ip add<cr>  then bring up with \"no sh\" "
                 if (comm == "no sh"  and  eth0_IP is not NULL):
                         eth0['shutdwon'] = False
-                if (comm == "sh"):
-                        eth0['shutdown'] = True
+                if (comm == "sh" or comm == "shutdown"):
+			deactive_connected_route(port1)
                 if (comm == "ip add"):
                         print "Set IP (A.B.C.D)"
                         eth0_IP = raw_input()
@@ -45,8 +45,8 @@ def menu_eth1(port):
                 	print "ip add<cr>  then bring up with \"no sh\" "
                 if (comm == "no sh"  and  eth0_IP is not NULL):
                         eth1['shutdown'] = False
-                if (comm == "sh"):
-                        eth1['shutdown'] = True
+                if (comm == "sh" or comm == "shutdown"):
+                        deactive_connected_route(port2)
                 if (comm == "ip add"):
                         print "Set IP (A.B.C.D)"
                         eth1_IP = stdin.readline()

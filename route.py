@@ -12,23 +12,33 @@ route_table = []
 
 def find_index(routes):
         i = 0
-        for r in route_table:
-                for ro in routes:
-                        ip = IPNetwork(str(ro['network']) + '/' + str(ro['netmask']))
-                        n = ip.prefixlen
-                        net = str(ro['network']) + '/' + str(n)
-                        # print "Kontrolujem prvu moju ", r['network'], net, i
-                        if r['network'] == net:
-                                return i
+	index = []
+	for r in route_table:
+		for ro in routes:
+        		ip = IPNetwork(str(ro['network']) + '/' + str(ro['netmask']))
+               		n = ip.prefixlen
+                	net = str(ro['network']) + '/' + str(n)
+                	# print "Kontrolujem prvu moju ", r['network'], net
+                	if r['network'] == net:
+                		# print "mam zhodu ", net
+				index.append(i)
                 i += 1
-        return False
-
+	# print index
+        if index:
+		return index
+	else:
+		return False
 
 def update_route_table(routes, proto):
         # remove old duplicates
-        index = find_index(routes)
-        if index is not False:
-                route_table.pop(index)
+	global route_table
+	index = find_index(routes)
+	if index is not False:
+		it = 0
+		for i in index:
+			print "mazem ", int(i)
+                	route_table.pop(int(i) - it) 
+			it += 1
         # print routes
         for r in routes:
 		# set all parameters
@@ -96,6 +106,9 @@ def delete_static_route(net):
 	else:
 		print "Error: Bad network address or prefix"
 
-
+def deactivate_connected_route(iface):
+	for r in route_table:
+		if r['int'] == iface and r['protocol'] == 'C':
+			r['active'] = False
 
 	

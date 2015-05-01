@@ -79,6 +79,11 @@ def rip_timers():
 						route_table[i]['active'] = False
 						route_table[i]['timer'] = poison_time
 				i += 1
+				if r['protocol'] == 'C' and r['active'] is False:
+					send_poison(r,rip_ifaces)
+					index = i
+					break
+					
 			if index is not False:
 				route_table.pop(index)
 
@@ -197,7 +202,9 @@ def rcv(ifaceFrom, ifaceTo, thread):
 						# print "RIP ", i['int'], ifaceFrom
 						if ifaceFrom == i['int']:
 							rip_routes  = get_from_rip(paketik, ifaceFrom)
-        						update_route_table(rip_routes, "R")
+        						lock.acquire()
+							update_route_table(rip_routes, "R")
+							lock.release()
 				if paketik[RIP].cmd == 1:
 					send_time_request(rip_networks,route_table,rip_ifaces)
 			if (RIP not in paketik and IP in paketik and paketik[IP].dst != eth0_IP and (IP in paketik and paketik[IP].dst != eth1_IP)):
@@ -326,7 +333,7 @@ while(True):
 		menu_eth0(port1)
 	if (command == "int eth1"):
 		menu_eth1(port2)
-	if (command == "show ip route"):
+	if (command == "show ip route" or command == "r"):
 		for route in route_table:
 			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int'] + "   metric: "  + route['metric'] + "   active: " + str(route['active'])
 	if (command == "ip route"):

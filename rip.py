@@ -54,7 +54,7 @@ def get_rip_routes(rip_base,route_table):
 	for r in route_table:
 		if r['protocol'] != 'S': # and is in rip base
 			routes.append({'network': r['network'],'metric' : str(r['metric']), 'int': str(r['int']), 'protocol': r['protocol']})
-	print routes
+	# print routes
 	return routes
 
 
@@ -87,11 +87,11 @@ def get_from_rip(pkt, iface):
                 #		sendp(pkt,iface = eth, verbose = 0)
 		entry = entry.payload
 
-	# print routes
+	print routes
 	return routes
 
 
-	
+
 def send_poison(route,ifaces):
 
 
