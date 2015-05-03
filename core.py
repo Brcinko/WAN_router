@@ -24,6 +24,8 @@ NULL = 0
 eth0 = {}
 eth1 = {}
 
+eth0_IP = "10.10.10.1"
+eth1_IP = "20.20.20.1"
 
 
 table = {}
@@ -329,9 +331,9 @@ while(True):
 	if (command == "help"):
 		help()
 	if (command == "int eth0"):
-		menu_eth0(port1)
+		eth0_IP = menu_eth0(port1,eth0_IP)
 	if (command == "int eth1"):
-		menu_eth1(port2)
+		eth0_IP = menu_eth1(port2,eth1_IP)
 	if (command == "show ip route" or command == "r"):
 		for route in route_table:
 			print route['protocol']+"      "+route['network']+"   nexthop " +route['next-hop']+ "  on "+ route['int'] + "   metric: "  + route['metric'] + "   active: " + str(route['active'])
@@ -391,7 +393,9 @@ while(True):
                 print "Inside addresses: ", in_networks
 		print "Outside adresses: ", out_networks
                 print "!"
-
+	if (command == "show ip int br"):
+		print "eth0 :", eth0_IP
+		print "eth1 :", eth1_IP
 
 
 

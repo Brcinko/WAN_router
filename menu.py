@@ -5,15 +5,16 @@ eth0 = {}
 eth1 = {}
 rip_networks = []
 
-eth0_IP = "10.10.10.1"
-eth1_IP = "20.20.20.1"
+# eth0_IP = "10.10.10.1"
+# eth1_IP = "20.20.20.1"
 
 port1 = "eth2"
 port2 = "eth3"
 
 
-def menu_eth0(port):
+def menu_eth0(port,eth0_IP):
 	print "CONFIG-IF eth0"
+	# global eth0_IP
 	while(True):
                 #print "DEBUG second while"
                 comm = raw_input('R1(conf-if)#')
@@ -37,12 +38,12 @@ def menu_eth0(port):
 			eth0['next-hop'] = raw_input()
 			update_static_route(eth0)	
                 if (comm == "ex" or comm == "exit"):
-                        break
-#	return eth0
+			return eth0['IP']
 
 
 def menu_eth1(port):
 	print "CONFIG-IF eth1"
+	global eth1_IP
 	while(True):
 		#print "DEBUG second while"
                 comm = raw_input('R1(conf-if)#')
@@ -59,7 +60,7 @@ def menu_eth1(port):
                         eth0['mask'] = raw_input()
                         eth0['int'] = port
                         eth0['metric'] = 1
-                        eth0['IP'] = eth0_IP
+                        eth0['IP'] = eth1_IP
                         eth0['protocol'] = 'C'
 			eth0['active'] = True
 			print "Set netxt-hop: "
@@ -67,7 +68,7 @@ def menu_eth1(port):
                         update_static_route(eth0)
 
                 if (comm == "ex" or comm == "exit"):
-                        break
+                        return eth0['IP']
 # 	return eth1
 
 
