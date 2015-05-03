@@ -27,8 +27,8 @@ TODO list
    
    - ~~looking on metric~~ 
    
-   - RIP logic
-     - Trigger updates
+   - ~~RIP logic~~
+     - ~~Trigger updates~~
    
    - ~~static NAT~~(maybe), dynamic NAT
    
