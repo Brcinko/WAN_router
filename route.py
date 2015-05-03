@@ -36,7 +36,7 @@ def update_route_table(routes, proto):
 	if index is not False:
 		it = 0
 		for i in index:
-			print "mazem ", int(i)
+			# print "mazem ", int(i)
                 	route_table.pop(int(i) - it) 
 			it += 1
         # print routes
@@ -56,7 +56,7 @@ def update_route_table(routes, proto):
 
 
 def set_route(eth):
-	print eth
+	# print eth
 	hlpstr = str(eth['IP']) + '/' + str(eth['mask'])
 	ip = IPNetwork(hlpstr)
 	net = str(ip.network) + '/' + str(ip.prefixlen)
@@ -86,7 +86,7 @@ def remove_old_connected(eth):
 def update_static_route(port):
 	route = {}
 	route = set_route(port)
-	print route
+	# print route
 	remove_old_connected(route['int'])
 	route_table.append(route)
 

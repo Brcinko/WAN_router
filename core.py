@@ -127,26 +127,26 @@ def getPort(dstMac, thread):
 	lock.release()
 
 def get_arp(pkt, ethIP,ifaceFrom):
-	print "mam arp paket"
+	# print "mam arp paket"
 	if ARP in pkt and pkt[ARP].pdst == ethIP and pkt[ARP].op == 2 : # is-at                
-		print "paket je response"
+		# print "paket je response"
 		update_ARP_table(pkt[ARP].psrc, pkt[ARP].hwsrc)
 		return pkt[ARP].hwsrc	
 	if ARP in pkt and pkt[ARP].pdst == ethIP and pkt[ARP].op == 1: # who-has
-		print "paket je request na mna"
+		# print "paket je request na mna"
 		update_ARP_table(pkt[ARP].psrc, pkt[ARP].hwsrc)
 		arp = send_ARP_reply(ethIP, pkt)
 		sendp (arp, iface = ifaceFrom, verbose = 0)
-		print arp.show()
+		# print arp.show()
 		return False
 	if ARP in pkt and pkt[ARP].pdst != ethIP:
-		print "mam cudzie arp"
+		# print "mam cudzie arp"
 		update_ARP_table(pkt[ARP].psrc,pkt[ARP].hwsrc)
 		route = check_route(pkt[ARP].pdst)
 		arp = send_ARP_reply(ethIP, pkt)
 		#  print pkt.show()
 		if route is not False:
-			print "idem odoslat rep na cudzie arp na ", ifaceFrom,arp.show() 
+			# print "idem odoslat rep na cudzie arp na ", ifaceFrom,arp.show() 
 			sendp(arp, iface = ifaceFrom ,verbose = 0)
 			return False
 			
@@ -190,9 +190,9 @@ def rcv(ifaceFrom, ifaceTo, thread):
 			if ARP in paketik:
 				# print "Debug idem do funkcie ARP"
         			get_arp(paketik,ethIP,ifaceFrom)
-				print "Odoslal som arp"
+				# print "Odoslal som arp"
 			if ICMP in paketik and paketik[IP].dst == eth0_IP or (ICMP in paketik and paketik[IP].dst == eth1_IP):
-				print "Debug prisiel ICMP"
+				# print "Debug prisiel ICMP"
 				pkt = send_ICMP_reply(paketik,ethIP)
 				sendp(pkt, iface=ifaceFrom, verbose = 0)
 			if RIP in paketik and rip_en is True:
@@ -212,10 +212,10 @@ def rcv(ifaceFrom, ifaceTo, thread):
 				if nat_en == 'static':
                                 	if in_int == ifaceFrom and str(paketik[IP].src) == in_networks[0]:
                                         	# vymen zdrojovu za vonkajsiu IP
-                                        	print "SOM TU"
+                                        	# print "SOM TU"
 						paketik[IP].src = out_networks[0]
                                         	sendp(paketik, iface = ifaceTo, verbose = 1)
-						print paketik.summary()
+						# print paketik.summary()
                                         	dstMAC = get_from_arp(route['next-hop'])
                                         	if dstMAC is not False:
                                                 	pkt = paketik
@@ -233,7 +233,7 @@ def rcv(ifaceFrom, ifaceTo, thread):
                                 	if out_int == ifaceFrom and paketik[IP].dst == out_networks[0]:
                                         	paketik[IP].dst = in_networks[0]
 						sendp(paketik, iface = ifaceTo, verbose = 1)
-						print paketik.summary()
+						# print paketik.summary()
                                                 dstMAC = get_from_arp(route['next-hop'])
                                                 if dstMAC is not False:
                                                         pkt = paketik
@@ -250,7 +250,7 @@ def rcv(ifaceFrom, ifaceTo, thread):
 				if route is not False:
 					dstMAC = get_from_arp(route['next-hop'])
 					if dstMAC is not False:
-						print "idem posielat na: ",str(route['int'])
+						# print "idem posielat na: ",str(route['int'])
 						pkt = paketik
 						hlp_dst = paketik.getfieldval('dst')
 						pkt[Ether].dst = dstMAC
@@ -267,7 +267,7 @@ def rcv(ifaceFrom, ifaceTo, thread):
                                                         sendp(arp,iface=ifaceTo, verbose = 0)
                                                 except Scapy_Exception as msg:
                                                         print msg, "Chyba pri odosielani na druhy iface"
-						print "nemam ARP ziadam ARP na", route['next-hop'] , arp.show()
+						# print "nemam ARP ziadam ARP na", route['next-hop'] , arp.show()
 
 			# print "Koncim"
 
