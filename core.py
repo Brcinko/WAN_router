@@ -40,6 +40,7 @@ stats = Stat()
 
 def sort_table(route_table):
 	while(True):
+		time.sleep(1)
 		if route_table:
 			route_table.sort(key=operator.itemgetter('metric'))			
 
@@ -297,14 +298,15 @@ t2.start()
 time.sleep(1)
 #t3.start()
 
-route = {}
-route.update({'active': True,'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth2', 'eth_IP':'10.10.10.1'})
+#route = {}
+#route.update({'active': True,'network':'10.10.10.0/24','next-hop':'10.10.10.10','protocol':'C','metric':'1', 'int':'eth2', 'eth_IP':'10.10.10.1'})
 
-route_table.append(route)
-route = {}
-route.update({'active': True, 'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth3', 'eth_IP':'20.20.20.1'})
 
-route_table.append(route)
+#route_table.append(route)
+#route = {}
+#route.update({'active': True, 'network':'20.20.20.0/24','next-hop':'20.20.20.20','protocol':'C','metric':'1', 'int':'eth3', 'eth_IP':'20.20.20.1'})
+
+#route_table.append(route)
 
 t_sort.start()
 

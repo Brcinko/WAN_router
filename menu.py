@@ -54,7 +54,7 @@ def menu_eth1(port):
                         deactivate_connected_route(port2)
                 if (comm == "ip add"):
                         print "Set IP (A.B.C.D)"
-                        eth0_IP = raw_input()
+                        eth1_IP = raw_input()
                         print "Set mask: "
                         eth0['mask'] = raw_input()
                         eth0['int'] = port
